@@ -122,12 +122,50 @@ data$Time <- as.numeric(sub(":", "", data$Time))
 data <- data[complete.cases(data),]
 # Organizar horas por periodo
 data <- mutate(data, Period = get_period(Time))
+data$Time <- as.factor(data$Period)
 # Discretizar numero de policias
 data <- mutate(data, PoliceForce = police_forceInterval(Police_Force))
+data$PoliceForce <- as.factor(data$PoliceForce)
 # Discretizar numero de veiculos 
 data <- mutate(data, Number_Vehicles = vehicle_And_Casualty_Interval(Number_of_Vehicles))
+data$Period <- as.factor(data$Number_Vehicles)
 # Discretizar numero de casualidades
 data <- mutate(data, Number_Casualties = vehicle_And_Casualty_Interval(Number_of_Casualties))
+data$Number_Casualties <- as.factor(data$Number_Casualties)
+
+######################## ASSOCIATION RULES ##########################
+
+#clustering
+library(dbscan)
+# Construir dados para apriori
+data_apriori = data
+cols <- c("X2nd_Road_Class", "Junction_Detail", "Junction_Control", 
+          "Pedestrian_Crossing.Human_Control", "Pedestrian_Crossing.Physical_Facilities", 
+          "Light_Conditions", "Road_Surface_Conditions", "Special_Conditions_at_Site", 
+          "Carriageway_Hazards", "Urban_or_Rural_Area", "Period", "Number_of_Vehicles",
+          "Number_of_Casualties", "Day_of_Week", "X1st_Road_Class",
+          "X1st_Road_Number", "Road_Type", "Speed_limit", "PoliceForce", "Number_Vehicles",
+          "Number_Casualties")
+#data_apriori[cols] <- lapply(data_apriori[cols], as.factor)
+data_apriori$Longitude = NULL
+data_apriori$Latitude = NULL
+data_apriori$Date = NULL
+data_apriori$Time = NULL
+data_apriori$X1st_Road_Number = NULL
+data_apriori$X2nd_Road_Number = NULL
+data_apriori$Day = NULL
+data_apriori$Year = NULL
+data_apriori$Accident_Index = NULL
+data_apriori$Police_Force = NULL
+data_apriori$LSOA_of_Accident_Location = NULL
+# sim, aplica duas vezes
+data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
+data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
+# sim, aplica duas vezes
+clusters <- dbscan(data_apriori, 0.4)
+
+######################## EXPLORATORY ANALYSIS #######################
+
 # Fazer corresponder ints a strings
 data$Accident_Severity = Casualty_Severity[data$Accident_Severity,]$label
 
@@ -154,34 +192,6 @@ FirstRdClass[6] = "Unclassified"
 data$X1st_Road_Class = FirstRdClass[data$X1st_Road_Class]
 data$X1st_Road_Class = as.factor(data$X1st_Road_Class)
 
-# Construir dados para apriori
-data_apriori = data
-cols <- c("X2nd_Road_Class", "Junction_Detail", "Junction_Control", 
-          "Pedestrian_Crossing.Human_Control", "Pedestrian_Crossing.Physical_Facilities", 
-          "Light_Conditions", "Road_Surface_Conditions", "Special_Conditions_at_Site", 
-          "Carriageway_Hazards", "Urban_or_Rural_Area", "Period", "Number_of_Vehicles",
-          "Number_of_Casualties", "Day_of_Week", "X1st_Road_Class",
-          "X1st_Road_Number", "Road_Type", "Speed_limit", "PoliceForce", "Number_Vehicles",
-          "Number_Casualties")
-data_apriori[cols] <- lapply(data_apriori[cols], as.factor)
-data_apriori$Longitude = NULL
-data_apriori$Latitude = NULL
-data_apriori$Date = NULL
-data_apriori$Time = NULL
-data_apriori$X1st_Road_Number = NULL
-data_apriori$X2nd_Road_Number = NULL
-data_apriori$Day = NULL
-data_apriori$Year = NULL
-data_apriori$Accident_Index = NULL
-data_apriori$Police_Force = NULL
-
-
-######################## ASSOCIATION RULES ##########################
-
-#Frequent Itemsets - nao considerar pra ja
-ap <- apriori(data_apriori, parameter=list(supp=0.5, conf=0.8, maxtime=60 , target="rules",maxlen=100))
-
-######################## EXPLORATORY ANALYSIS #######################
 
 library(ggplot2)
 
