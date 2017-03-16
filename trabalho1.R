@@ -161,7 +161,8 @@ cols <- c("X2nd_Road_Class", "Junction_Detail", "Junction_Control",
           "Light_Conditions", "Road_Surface_Conditions", "Special_Conditions_at_Site", 
           "Carriageway_Hazards", "Urban_or_Rural_Area", "Period", "Number_of_Vehicles",
           "Number_of_Casualties", "Day_of_Week", "X1st_Road_Class",
-          "X1st_Road_Number", "Road_Type", "Speed_limit")
+          "X1st_Road_Number", "Road_Type", "Speed_limit", "PoliceForce", "Number_Vehicles",
+          "Number_Casualties")
 data_apriori[cols] <- lapply(data_apriori[cols], as.factor)
 data_apriori$Longitude = NULL
 data_apriori$Latitude = NULL
