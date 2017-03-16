@@ -1,6 +1,57 @@
 library(arules)
 library(arulesViz)
 library(gdata)
+library(dplyr)
+
+get_period <- function(x) {
+  sapply(x, function(x) {
+    if ((x >= 800 & x < 900) | (x >= 1700 & x < 1900)) {
+      "rush hour"
+    }
+    else if (x >= 900 & x < 1200) {
+        "morning"
+    }
+    else if (x >= 1200 & x < 1700) {
+          "afternoon"
+    }
+    else {
+          "night"
+    }
+  }
+  )
+}
+
+police_forceInterval <- function(x) {
+  sapply(x, function(x) {
+    if (x >= 1 & x < 6) {
+      "small"
+    }
+    else {
+      if (x >= 6 & x < 45) {
+        "medium"
+      }
+      else {
+        "large"
+      }
+    }
+  })
+}
+
+vehicle_And_Casualty_Interval <- function(x) {
+  sapply(x, function(x) {
+    if (x == 1) {
+      "individual"
+    }
+    else {
+      if (x > 1) {
+        "multiple"
+      }
+      else {
+        "none"
+      }
+    }
+  })
+}
 
 ######################################READ CSV#########################################
 
@@ -44,12 +95,12 @@ Home_Area <- read_guides(file_guide,"Home Area Type")
 ######################## CLEAN DATA ###############################
 library(lubridate)
 
+
 # Temos outra coluna para localizacao: LSOA_Of_Accident_Location
 data$Location_Easting_OSGR = NULL 
 data$Location_Northing_OSGR = NULL
 # Nao e relevante:
 data$Did_Police_Officer_Attend_Scene_of_Accident = NULL
-data$Police_Force = NULL
 data$Local_Authority_.Highway. = NULL
 data$Local_Authority_.District. = NULL
 # Tipos correctos:
@@ -65,6 +116,69 @@ parsedDates <- data.frame(Date = dates, Day=lubridate::day(dates),
                           Year=lubridate::year(dates), WeekDay=lubridate::wday(dates, label=TRUE))
 data <- data.frame(data, parsedDates)
 data["Date.1"] <- NULL
+# Colocar Time em formato numerico, sem :
+data$Time <- as.numeric(sub(":", "", data$Time))
+# Remover linhas com NA
+data <- data[complete.cases(data),]
+# Organizar horas por periodo
+data <- mutate(data, Period = get_period(Time))
+# Discretizar numero de policias
+data <- mutate(data, PoliceForce = police_forceInterval(Police_Force))
+# Discretizar numero de veiculos 
+data <- mutate(data, Number_Vehicles = vehicle_And_Casualty_Interval(Number_of_Vehicles))
+# Discretizar numero de casualidades
+data <- mutate(data, Number_Casualties = vehicle_And_Casualty_Interval(Number_of_Casualties))
+# Fazer corresponder ints a strings
+data$Accident_Severity = Casualty_Severity[data$Accident_Severity,]$label
+
+Weather_Conditions <- c()
+Weather_Conditions[1] = "Fine, no high winds"
+Weather_Conditions[2] = "Raining, no high winds"
+Weather_Conditions[3] = "Snowing, no high winds"
+Weather_Conditions[4] = "Fine + high winds"
+Weather_Conditions[5] = "Raining + high winds"
+Weather_Conditions[6] = "Snowing + high winds"
+Weather_Conditions[7] = "Fog or mist"
+Weather_Conditions[8] = "Other"
+Weather_Conditions[9] = "Unknown"
+data$Weather_Conditions = Weather_Conditions[data$Weather_Conditions]
+data$Weather_Conditions = as.factor(data$Weather_Conditions)
+
+FirstRdClass <- c()
+FirstRdClass[1] = "Motorway"
+FirstRdClass[2] = "A(M)"
+FirstRdClass[3] = "A"
+FirstRdClass[4] = "B"
+FirstRdClass[5] = "C"
+FirstRdClass[6] = "Unclassified"
+data$X1st_Road_Class = FirstRdClass[data$X1st_Road_Class]
+data$X1st_Road_Class = as.factor(data$X1st_Road_Class)
+
+# Construir dados para apriori
+data_apriori = data
+cols <- c("X2nd_Road_Class", "Junction_Detail", "Junction_Control", 
+          "Pedestrian_Crossing.Human_Control", "Pedestrian_Crossing.Physical_Facilities", 
+          "Light_Conditions", "Road_Surface_Conditions", "Special_Conditions_at_Site", 
+          "Carriageway_Hazards", "Urban_or_Rural_Area", "Period", "Number_of_Vehicles",
+          "Number_of_Casualties", "Day_of_Week", "X1st_Road_Class",
+          "X1st_Road_Number", "Road_Type", "Speed_limit")
+data_apriori[cols] <- lapply(data_apriori[cols], as.factor)
+data_apriori$Longitude = NULL
+data_apriori$Latitude = NULL
+data_apriori$Date = NULL
+data_apriori$Time = NULL
+data_apriori$X1st_Road_Number = NULL
+data_apriori$X2nd_Road_Number = NULL
+data_apriori$Day = NULL
+data_apriori$Year = NULL
+data_apriori$Accident_Index = NULL
+data_apriori$Police_Force = NULL
+
+
+######################## ASSOCIATION RULES ##########################
+
+#Frequent Itemsets - nao considerar pra ja
+ap <- apriori(data_apriori, parameter=list(supp=0.5, conf=0.8, maxtime=60 , target="rules",maxlen=100))
 
 ######################## EXPLORATORY ANALYSIS #######################
 
@@ -100,3 +214,37 @@ ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
   ggtitle('Number of casualties') +
   coord_flip()
 
+# x1st_class_road por accident_severity
+
+accid <- read.csv("Accidents_2015.csv")
+accid$Accident_Severity = Casualty_Severity[accid$Accident_Severity,]$label
+accid$X1st_Road_Class = FirstRdClass[accid$X1st_Road_Class]
+X1stClassRoadperTypeAccident <- select(accid, X1st_Road_Class, Accident_Severity)
+X1stClassRoadperTypeAccident <- group_by(X1stClassRoadperTypeAccident, X1st_Road_Class, Accident_Severity)
+X1stClassRoadperTypeAccident <- dplyr::count(X1stClassRoadperTypeAccident, X1st_Road_Class, Accident_Severity)
+X1stClassRoadperTypeAccident <- mutate(X1stClassRoadperTypeAccident, fr=n/sum(n))
+ggplot(X1stClassRoadperTypeAccident, aes(x = Accident_Severity, y = fr)) + geom_bar(stat="identity") + facet_wrap(~ X1st_Road_Class) + ggtitle("Accident Severity by each 1st Road Class")
+
+#table with 1st point of impact and casualty severity for each accident
+
+vehicles <- read.csv("Vehicles_2015.csv")
+casualties <- read.csv("Casualties_2015.csv")
+require(sqldf)
+matchIndex <- sqldf("SELECT v.Accident_Index, c.Casualty_Severity, v.X1st_Point_of_Impact
+                    FROM casualties as c, vehicles as v WHERE v.Accident_Index = c.Accident_Index")
+matchIndex <- dplyr::count(matchIndex, X1st_Point_of_Impact, Casualty_Severity)
+ggplot(matchIndex, aes(y=n, x=Casualty_Severity)) + 
+  geom_bar(stat="identity") +
+  ggtitle('Casualty_Severity by First point of impact') + facet_wrap(~ X1st_Point_of_Impact)
+
+# summaries 
+accid$Accident_Index = NULL
+accid$Police_Force <- police_forceInterval(accid$Police_Force)
+
+summary(accid$Police_Force)
+
+accid$Number_of_Vehicles <- vehicleInterval(accid$Number_of_Vehicles)
+accid$Number_of_Casualties <- vehicleInterval(accid$Number_of_Casualties)
+
+summary(accid$Number_of_Vehicles)
+summary(accid$Number_of_Casualties)
