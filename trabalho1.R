@@ -158,11 +158,20 @@ data_apriori$Year = NULL
 data_apriori$Accident_Index = NULL
 data_apriori$Police_Force = NULL
 data_apriori$LSOA_of_Accident_Location = NULL
+data_apriori$Number_of_Casualties = NULL
+data_apriori$Number_of_Vehicles = NULL
+data_apriori$Day_of_Week = NULL
 # sim, aplica duas vezes
 data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
 data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
 # sim, aplica duas vezes
-clusters <- dbscan(data_apriori, 0.4)
+data_apriori<-unique(data_apriori)
+clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
+
+#brincar com o apriori aqui:
+tt <- data_apriori[clusters$cluster==40,]
+tt[] <- lapply(tt, factor)
+ap <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", maxlen=100))
 
 ######################## EXPLORATORY ANALYSIS #######################
 
