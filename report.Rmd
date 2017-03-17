@@ -19,7 +19,16 @@ In this report, we study a dataset that contains several details on car accident
 summary(cars)
 ```
 
-## Including Plots
+## Preprocessing
+We have done some preprocessing on the data in order to find interesting relations using association rules. We start by creating a function that allowed us to read the xls file guides for our main dataset and consequently the xls file with the main dataset.
+This allowed us to exlude the second and third columns , also the Thirty first column as well all the variables relative to local authority as we found them not correlated with the rest of the set. 
+We also verified that the dataset had missing values and therefore we excluded these observations from the data.
+In a first analysis of the dataset we realized that for a better perception of the data we should divide some of the variables to Nominal variables intervals , only to improve our goal to find association rules on the cause and effect of traffic  accidents. In order to be more precise , we are going to make a exploratory analysis an then we may proceed on excluding the variables that we do not think that were not necessary in our analysis.
+
+
+## Exploratory Analysis
+
+
 
 You can also embed plots, for example:
 
