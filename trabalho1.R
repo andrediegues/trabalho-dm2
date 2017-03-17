@@ -9,13 +9,13 @@ get_period <- function(x) {
       "rush hour"
     }
     else if (x >= 900 & x < 1200) {
-        "morning"
+      "morning"
     }
     else if (x >= 1200 & x < 1700) {
-          "afternoon"
+      "afternoon"
     }
     else {
-          "night"
+      "night"
     }
   }
   )
@@ -55,14 +55,14 @@ vehicle_And_Casualty_Interval <- function(x) {
 
 ######################################READ CSV#########################################
 
-data <- read.csv("Accidents_2015.csv", header=TRUE)
+data <- read.csv("~/GitProjects/trabalho-dm2/Accidents_2015.csv", header=TRUE)
 
 ######################################READ THE GUIDES###################################
 
-file_guide <-"Road-Accident-Safety-Data-Guide.xls"
+file_guide <-"~/GitProjects/trabalho-dm2/Road-Accident-Safety-Data-Guide.xls"
 read_guides <- function(file_from,sheet_name){
-    data_name <-read.xls(file_from,sheet =sheet_name)
-    return(data_name)
+  data_name <-read.xls(file_from,sheet =sheet_name)
+  return(data_name)
 }
 
 ##Read Casulty Severity
@@ -161,6 +161,8 @@ data_apriori$LSOA_of_Accident_Location = NULL
 data_apriori$Number_of_Casualties = NULL
 data_apriori$Number_of_Vehicles = NULL
 data_apriori$Day_of_Week = NULL
+data_apriori$PoliceForce=NULL
+
 # sim, aplica duas vezes
 data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
 data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
@@ -172,7 +174,7 @@ clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
 tt <- data_apriori[clusters$cluster==40,]
 tt[] <- lapply(tt, factor)
 ap <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", maxlen=100))
-
+rules.lift<-subset(ap,lift>1.3)
 ######################## EXPLORATORY ANALYSIS #######################
 
 # Fazer corresponder ints a strings
