@@ -1,0 +1,30 @@
+---
+title: "Road Safety in the United Kingdom in 2015"
+author: "André Diegues, André Fonseca, Rui Andrade"
+date: "17 de Março de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Association rule mining is a concept that fits under descriptive tasks in the area of _Data Mining_. Originally used in what is called _Market Basket Analysis_, so as to analyse customer purchases and try to find unexpected associations between items, it has been generalised to help explain, for example, what factors could contribute towards a given characteristic in an observation. Sets of items that are commonly found together are called _frequent itemsets_ and relationships between items - in the sense that having certain items could favour having other certain items - are called _association rules_.
+
+In this report, we study a dataset that contains several details on car accidents in the United Kingdom. This dataset was made available by the Government of the United Kingdom and dates back to 2015. Examples of information contained in it include: GPS location of the occurence, severity of accident, number of vehicles and casualties involved, time and date, type of road, speed limit, natural conditions (weather or light), road conditions and infrastructure available in the road (how are junctions handled, are there crossings available or not...). The goal of this work is to find frequent itemsets relating to the details of accidents, or in other words, what do accidents typically have related to one another, as well as finding association rules that could explain some characteristics - for example, can we conclude what the ** preciso de um exemplo de uma association rule aqui ** ?
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
