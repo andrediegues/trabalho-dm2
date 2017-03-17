@@ -55,11 +55,11 @@ vehicle_And_Casualty_Interval <- function(x) {
 
 ######################################READ CSV#########################################
 
-data <- read.csv("~/GitProjects/trabalho-dm2/Accidents_2015.csv", header=TRUE)
+data <- read.csv("Accidents_2015.csv", header=TRUE)
 
 ######################################READ THE GUIDES###################################
 
-file_guide <-"~/GitProjects/trabalho-dm2/Road-Accident-Safety-Data-Guide.xls"
+file_guide <-"Road-Accident-Safety-Data-Guide.xls"
 read_guides <- function(file_from,sheet_name){
   data_name <-read.xls(file_from,sheet =sheet_name)
   return(data_name)
