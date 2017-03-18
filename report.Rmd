@@ -56,15 +56,26 @@ ggplot(data_graph2, aes(y=n, x=Accident_Severity)) +
 ```
 
 Looking to _fig.2_ we immediately discovered that we have a decreasing distribution of accident from Slight (code=3) to fatal(code=1) almost identical on all year.
-Observing the data in a more profound way, we observe that the moth of December is the most deadly and in some way supports our claims on _fig.1_.
+Observing the data in a more profound way, we observe that the month of December is the most deadly and in some way supports our claims on _fig.1_.
 
+Now our goal was to find how the Accident Severity would behave when compared to the atmospheric conditions.
+From this data we expect to see a higher frequency on Fatal accidents when demostrated agaist each type of weather conditions as we can see on _fig.3_.
 
+```{r pressure, echo=FALSE}
+# severity of accidents by weather conditions
+data_graph3 <- dplyr::select(data, c(Weather_Conditions, Accident_Severity))
+data_graph3 <- dplyr::group_by(data_graph3, Weather_Conditions, Accident_Severity)
+data_graph3 <- dplyr::count(data_graph3, Weather_Conditions, Accident_Severity)
+data_graph3 <- dplyr::mutate(data_graph3, fr=n/sum(n))
+ggplot(data_graph3, aes(y=fr, x=Accident_Severity)) + 
+  geom_bar(stat="identity") + 
+  ggtitle('Severity of accidents by weather conditions') + facet_wrap(~ Weather_Conditions)
+```
 
+Observing our _fig.3_ we can perceive that is indeed when it's verified bad wheather conditions like rain, fog and high winds there's higher frequency on Fatal accidents.
+We can assume that when Snowing drivers have limitions on their driving conditions and because of that the frequency of Fatal accidents is almost null when compared to other conditions.
 
-
-
-
-
+We also found interesting knowing the distribution of casualties per accident, this data could provide some perspective 
 
 
 
