@@ -41,7 +41,32 @@ ggplot(data, aes(x=Longitude, y=Latitude, colour=Accident_Severity)) +
   ggtitle('Accident locations and level of severity')
 ```
 
-As we can see we have scatter the accident locations per level of severity , and found that the geografical dispersion is similir to the UK geographical terrain, and the most frequent cases of Fatal accident (code = 1) are in the north side of the country, looking over this points it is quite reasonable to assume that fatal accidents are directly related to the worst atmospheric conditions that are felt normaly with more intensity in the north of the country.
+As we can see we have scatter the accident locations per level of severity , and found that the geografical dispersion is similir to the UK geographical terrain, and the most frequent cases of Fatal accident (code = 1) are in the north side of the country, looking over this points it is quite reasonable to assume that fatal accidents are directly related to the worst atmospheric conditions that are felt normaly with more intensity in the north of the country (during winter).
+
+Now our goal was to relate to each type of accident severity with a month, and know in this way the distribution of accidents per moth as we can see in _fig.2_.
+
+```{r pressure, echo=FALSE}
+# severity of accidents by month
+data_graph2 <- dplyr::select(data, c(Month, Accident_Severity))
+data_graph2 <- dplyr::group_by(data_graph2, Accident_Severity)
+data_graph2 <- dplyr::count(data_graph2, Month, Accident_Severity)
+ggplot(data_graph2, aes(y=n, x=Accident_Severity)) + 
+  geom_bar(stat="identity") + 
+  ggtitle('Severity of accidents by month') + facet_wrap(~ Month)
+```
+
+Looking to _fig.2_ we immediately discovered that we have a decreasing distribution of accident from Slight (code=3) to fatal(code=1) almost identical on all year.
+Observing the data in a more profound way, we observe that the moth of December is the most deadly and in some way supports our claims on _fig.1_.
+
+
+
+
+
+
+
+
+
+
 
 You can also embed plots, for example:
 
