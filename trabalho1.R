@@ -171,10 +171,20 @@ data_apriori<-unique(data_apriori)
 clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
 
 #brincar com o apriori aqui:
-tt <- data_apriori[clusters$cluster==40,]
-tt[] <- lapply(tt, factor)
-ap <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", maxlen=100))
-rules.lift<-subset(ap,lift>1.3)
+apply_apriori_clusters <- function(data_set, cluster_set){
+  n_clusters <- c(1:max(unique(cluster_set$cluster)))
+  subsets <- list()
+  for(i in n_clusters){
+    tt <- data_set[cluster_set$cluster==i,]
+    tt[] <- lapply(tt, factor)
+    ap_ <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
+    ss <- subset(ap_,lift>1.4)
+    subsets[[i]] <- ss
+  }
+  subsets
+}
+subsets <- apply_apriori_clusters(data_apriori, clusters)
+
 ######################## EXPLORATORY ANALYSIS #######################
 
 # Fazer corresponder ints a strings
