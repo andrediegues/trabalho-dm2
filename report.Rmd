@@ -89,6 +89,47 @@ ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
 As it's show it _fig.4_ its fair to say that the most common number of injureds it's one despite the severity of the accident. Looking closely we can see also that in some cases there is a large number of casulties that could have been from accidents with Buses or Chain shocks.
 
 
+After all this analysis on the causes and the distribution by time of the accident Severity is also important to analise the type of road on wich the hierarchy of roads it's categorized.
+That said we generetad a graph with the distribution of Accident severity per type of road as you can observe on _fig.5_.
+ 
+```{r presuure, echo=FALSE}
+
+# x1st_class_road por accident_severity
+accid <- read.csv("Accidents_2015.csv")
+accid$Accident_Severity = Casualty_Severity[accid$Accident_Severity,]$label
+accid$X1st_Road_Class = FirstRdClass[accid$X1st_Road_Class]
+X1stClassRoadperTypeAccident <- select(accid, X1st_Road_Class, Accident_Severity)
+X1stClassRoadperTypeAccident <- group_by(X1stClassRoadperTypeAccident, X1st_Road_Class, Accident_Severity)
+X1stClassRoadperTypeAccident <- dplyr::count(X1stClassRoadperTypeAccident, X1st_Road_Class, Accident_Severity)
+X1stClassRoadperTypeAccident <- mutate(X1stClassRoadperTypeAccident, fr=n/sum(n))
+ggplot(X1stClassRoadperTypeAccident, aes(x = Accident_Severity, y = fr)) + geom_bar(stat="identity") + facet_wrap(~ X1st_Road_Class) + ggtitle("Accident Severity by each 1st Road Class")
+
+```
+
+As we can check , the type road A, or primary road is the type that showns more fatal,serious and slight accidents. This primary road network is fully connected, meaning you can reach any part from any other without leaving the network, making a preference road for travelling for the drivers, so it's not a suprise that there's a elevated number of accidents when compared to the rest of road types.
+
+
+Finally we found necessary to explore the Casualty Severity by First point of impact , for that was necessary to have extra data , on this case was necessary to have a dataset relative to the vehicles and Casualties.
+On this case we expected to find some relation between the fatal accidents and a specific impact , so we created the _fig.6_.
+```{r presuure, echo=FALSE}
+
+#table with 1st point of impact and casualty severity for each accident
+vehicles <- read.csv("Vehicles_2015.csv")
+casualties <- read.csv("Casualties_2015.csv")
+require(sqldf)
+matchIndex <- sqldf("SELECT v.Accident_Index, c.Casualty_Severity, v.X1st_Point_of_Impact
+                    FROM casualties as c, vehicles as v WHERE v.Accident_Index = c.Accident_Index")
+matchIndex <- dplyr::count(matchIndex, X1st_Point_of_Impact, Casualty_Severity)
+matchIndex <- subset(matchIndex, X1st_Point_of_Impact!=-1)
+ggplot(matchIndex, aes(y=n, x=Casualty_Severity)) + 
+  geom_bar(stat="identity") +
+  ggtitle('Casualty_Severity by First point of impact') + facet_wrap(~ X1st_Point_of_Impact)
+
+```
+
+It's quite interesting to look at this data because it could lead to some type of improvement by the Manufacturers of the vehicles for critical sections like strengthen the bodywork of that section of the car.
+We can observe that all the higher percentange of impacts that result in a fatality are from Front impacts(code=1) as the Sligth causalty are also from the front side impacts, for the rest of the Points of impacts it's fair to say that the most common type of casualty is Sligth
+
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
