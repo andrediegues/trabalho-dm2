@@ -20,16 +20,16 @@ summary(cars)
 ```
 
 ## Preprocessing
-We have done some preprocessing on the data in order to find interesting relations using association rules. We start by creating a function that allowed us to read the xls file guides for our main dataset and consequently the xls file with the main dataset.
-This allowed us to exlude the second and third columns , also the Thirty first column as well all the variables relative to local authority as we found them not correlated with the rest of the set. 
+We decided to do preprocessing of the data in order to find interesting relations using association rules. We started by creating a function that allowed us to read the xls file guides for our main dataset and consequently the xls file with the main dataset.
+This allowed us to exclude the second and third columns and also the Thirty first column, as all the variables relative to local authority weren't correlated with the rest of the set. 
 We also verified that the dataset had missing values and therefore we excluded these observations from the data.
-In a first analysis of the dataset we realized that for a better perception of the data we should divide some of the variables to Nominal variables intervals , only to improve our goal to find association rules on the cause and effect of traffic  accidents. In order to be more precise , we are going to make a exploratory analysis an then we may proceed on excluding the variables that we do not think that were not necessary in our analysis.
+In a first analysis of the dataset we realized that for a better perception of the data we should divide some of the variables to Nominal variables intervals , only to improve our goal to find association rules on the cause and effect of traffic  accidents. In order to be more precise , we are going to make an exploratory analysis and then we may proceed on excluding the variables that we do not think that are not necessary in our analysis.
 
 
 ## Exploratory Analysis
-For this part, we started by matching some of the code guides with our actual data for better interpretation.
-After that we start by generating some graphs with a certain interest to visualize some correlation.
-For that porpuse our first plot as we can see in _fig.1_ tries to find association between accident locations and the severity of the accident.
+In this part, we started by matching some of the code guides with our actual data for better interpretation.
+After that, we generated some graphs with a certain interest to visualize some correlation.
+For that purpose our first plot, as we can see in _fig.1_, tries to find an association between accident locations and the severity of the accident.
 
 ``` associar aquele fig 1 ao plot```
 ```{r pressure, echo=FALSE}
@@ -41,11 +41,11 @@ ggplot(data, aes(x=Longitude, y=Latitude, colour=Accident_Severity)) +
   ggtitle('Accident locations and level of severity')
 ```
 
-As we can see we have scatter the accident locations per level of severity , and found that the geografical dispersion is similir to the UK geographical terrain, and the most frequent cases of Fatal accident (code = 1) are in the north side of the country, looking over this points it is quite reasonable to assume that fatal accidents are directly related to the worst atmospheric conditions that are felt normaly with more intensity in the north of the country (during winter).
+As we can see we have scattered the accident locations per level of severity and found that the geographical dispersion is similar to the UK geographical terrain and the most frequent cases of Fatal accident (code = 1) are in the north of the country. Looking over these points it is quite reasonable to assume that fatal accidents are directly related to the worst atmospheric conditions that are felt normally with more intensity in the north of the country (especially during winter).
 
-Now our goal was to relate to each type of accident severity with a month, and know in this way the distribution of accidents per moth as we can see in _fig.2_.
+Now our goal was to relate to each type of accident severity by month, and know, in this way, the distribution of accidents per month as we can see in _fig.2_.
 
-```{r pressure, echo=FALSE}
+```{r pressure2, echo=FALSE}
 # severity of accidents by month
 data_graph2 <- dplyr::select(data, c(Month, Accident_Severity))
 data_graph2 <- dplyr::group_by(data_graph2, Accident_Severity)
@@ -55,13 +55,13 @@ ggplot(data_graph2, aes(y=n, x=Accident_Severity)) +
   ggtitle('Severity of accidents by month') + facet_wrap(~ Month)
 ```
 
-Looking to _fig.2_ we immediately discovered that we have a decreasing distribution of accident from Slight (code=3) to fatal(code=1) almost identical on all year.
-Observing the data in a more profound way, we observe that the month of December is the most deadly and in some way supports our claims on _fig.1_.
+Observing _fig.2_, we can clearly see that we have a decreasing distribution of accident from Slight (code=3) to Fatal (code=1) almost identical on all year.
+Observing the data in a more detailed way, we observe that the month of December is the most deadly and in some way supports our claims on _fig.1_.
 
 Now our goal was to find how the Accident Severity would behave when compared to the atmospheric conditions.
-From this data we expect to see a higher frequency on Fatal accidents when demostrated agaist each type of weather conditions as we can see on _fig.3_.
+From this data we expect to see a higher frequency of Fatal accidents when demonstrated against each type of weather conditions as we can see on _fig.3_.
 
-```{r pressure, echo=FALSE}
+```{r pressure3, echo=FALSE}
 # severity of accidents by weather conditions
 data_graph3 <- dplyr::select(data, c(Weather_Conditions, Accident_Severity))
 data_graph3 <- dplyr::group_by(data_graph3, Weather_Conditions, Accident_Severity)
@@ -72,10 +72,10 @@ ggplot(data_graph3, aes(y=fr, x=Accident_Severity)) +
   ggtitle('Severity of accidents by weather conditions') + facet_wrap(~ Weather_Conditions)
 ```
 
-Observing our _fig.3_ we can perceive that is indeed when it's verified bad wheather conditions like rain, fog and high winds there's higher frequency on Fatal accidents.
-We can assume that when Snowing drivers have limitions on their driving conditions and because of that the frequency of Fatal accidents is almost null when compared to other conditions.
+Observing _fig.3_, we can identify that is indeed when there is bad weather conditions like rain, fog and high winds there's a higher frequency of fatal accidents.
+We can assume that when snowing drivers have limitations on their driving conditions and because of that the frequency of fatal accidents is almost null when compared to other conditions.
 
-We also found interesting knowing the distribution of casualties per accident dispite their severity, this data could provide some perspective on the "normal" number of injures per accident. So we generated the graph as you can see on _fig.4_.
+We also found interesting knowing the distribution of casualties per accident despite their severity, this data could provide some perspective on the "normal" number of injuries per accident. So we generated the graph as you can see on _fig.4_.
 
 ```{r presuure, echo=FALSE}
 # number of casualties by accident
@@ -86,13 +86,13 @@ ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
   coord_flip()
 ```
 
-As it's show it _fig.4_ its fair to say that the most common number of injureds it's one despite the severity of the accident. Looking closely we can see also that in some cases there is a large number of casulties that could have been from accidents with Buses or Chain shocks.
+As it's shown in _fig.4_, it's fair to say that the most common number of injuries is one despite the severity of the accident. Looking closely we can also see that in some cases there is a large number of casualties that could have been from accidents with Buses or Chain crashes?shocks.
 
 
-After all this analysis on the causes and the distribution by time of the accident Severity is also important to analise the type of road on wich the hierarchy of roads it's categorized.
-That said we generetad a graph with the distribution of Accident severity per type of road as you can observe on _fig.5_.
+After all this analysis on the causes and the distribution by the time of the accident Severity is also important to analyze the type of road on which the hierarchy of roads it's categorized.
+That said, we generated a graph with the distribution of Accident Severity per type of road as you can observe on _fig.5_.
  
-```{r presuure, echo=FALSE}
+```{r presuure2, echo=FALSE}
 
 # x1st_class_road por accident_severity
 accid <- read.csv("Accidents_2015.csv")
@@ -106,12 +106,12 @@ ggplot(X1stClassRoadperTypeAccident, aes(x = Accident_Severity, y = fr)) + geom_
 
 ```
 
-As we can check , the type road A, or primary road is the type that showns more fatal,serious and slight accidents. This primary road network is fully connected, meaning you can reach any part from any other without leaving the network, making a preference road for travelling for the drivers, so it's not a suprise that there's a elevated number of accidents when compared to the rest of road types.
+As we can check, the type road A, or primary road, is the type that shows more fatal, serious and slight accidents. This primary road network is fully connected, meaning you can reach any part from any other without leaving the network, making a preferable road for travelling for the drivers, so it's not a surprise that there's an elevated number of accidents when compared to the rest of road types.
 
 
-Finally we found necessary to explore the Casualty Severity by First point of impact , for that was necessary to have extra data , on this case was necessary to have a dataset relative to the vehicles and Casualties.
-On this case we expected to find some relation between the fatal accidents and a specific impact , so we created the _fig.6_.
-```{r presuure, echo=FALSE}
+Finally, we found necessary to explore the Casualty Severity by First point of impact, for that was necessary to have extra data, on this case was necessary to have a dataset relative to the vehicles and Casualties.
+In this case, we expected to find some relation between the fatal accidents and a specific impact, so we created the _fig.6_.
+```{r presuure3, echo=FALSE}
 
 #table with 1st point of impact and casualty severity for each accident
 vehicles <- read.csv("Vehicles_2015.csv")
@@ -127,12 +127,12 @@ ggplot(matchIndex, aes(y=n, x=Casualty_Severity)) +
 
 ```
 
-It's quite interesting to look at this data because it could lead to some type of improvement by the Manufacturers of the vehicles for critical sections like strengthen the bodywork of that section of the car.
-We can observe that all the higher percentange of impacts that result in a fatality are from Front impacts(code=1) as the Sligth causalty are also from the front side impacts, for the rest of the Points of impacts it's fair to say that the most common type of casualty is Sligth
+It's quite interesting to look at this data because it could lead to some type of improvement by the Manufacturers of the vehicles for critical sections like to strengthen the bodywork of that section of the car.
+We can observe that all the higher percentage of impacts that result in a fatality are from Front impacts(code=1) as the Slight casualty is also from the front side impacts, for the rest of the Points of impacts it's fair to say that the most common type of casualty is Slight.
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
+```{r pressure4, echo=FALSE}
 plot(pressure)
 ```
 

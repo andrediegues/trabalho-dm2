@@ -275,8 +275,9 @@ accid$Police_Force <- police_forceInterval(accid$Police_Force)
 
 summary(accid$Police_Force)
 
-accid$Number_of_Vehicles <- vehicleInterval(accid$Number_of_Vehicles)
-accid$Number_of_Casualties <- vehicleInterval(accid$Number_of_Casualties)
+accid$Number_of_Vehicles <- vehicle_And_Casualty_Interval(accid$Number_of_Vehicles)
+accid$Number_of_Casualties <- vehicle_And_Casualty_Interval(accid$Number_of_Casualties)
 
 summary(accid$Number_of_Vehicles)
 summary(accid$Number_of_Casualties)
+
