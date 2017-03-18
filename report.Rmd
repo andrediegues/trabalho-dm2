@@ -59,7 +59,7 @@ Observing _fig.2_, we can clearly see that we have a decreasing distribution of 
 Observing the data in a more detailed way, we observe that the month of December is the most deadly and in some way supports our claims on _fig.1_.
 
 Now our goal was to find how the Accident Severity would behave when compared to the atmospheric conditions.
-From this data we expect to see a higher frequency of Fatal accidents when demonstrated against each type of weather conditions as we can see on _fig.3_.
+From this data we expect to see a higher frequency of Fatal accidents when put agaist bad weather conditions as we can see on _fig.3_.
 
 ```{r pressure3, echo=FALSE}
 # severity of accidents by weather conditions
@@ -73,7 +73,7 @@ ggplot(data_graph3, aes(y=fr, x=Accident_Severity)) +
 ```
 
 Observing _fig.3_, we can identify that is indeed when there is bad weather conditions like rain, fog and high winds there's a higher frequency of fatal accidents.
-We can assume that when snowing drivers have limitations on their driving conditions and because of that the frequency of fatal accidents is almost null when compared to other conditions.
+We can also assume that when snowing, drivers have limitations on their driving conditions and because of that the frequency of fatal accidents is almost null when compared to other conditions.
 
 We also found interesting knowing the distribution of casualties per accident despite their severity, this data could provide some perspective on the "normal" number of injuries per accident. So we generated the graph as you can see on _fig.4_.
 
@@ -106,10 +106,10 @@ ggplot(X1stClassRoadperTypeAccident, aes(x = Accident_Severity, y = fr)) + geom_
 
 ```
 
-As we can check, the type road A, or primary road, is the type that shows more fatal, serious and slight accidents. This primary road network is fully connected, meaning you can reach any part from any other without leaving the network, making a preferable road for travelling for the drivers, so it's not a surprise that there's an elevated number of accidents when compared to the rest of road types.
+As we can check, the type road A, or primary road, is the type that shows more fatal, serious and slight accidents. This primary road belongs to a network that is fully connected, meaning you can reach any part from any other without leaving the network, making a preferable road for travelling for the drivers, so it's not a surprise that there's an elevated number of accidents when compared to the rest of road types.
 
 
-Finally, we found necessary to explore the Casualty Severity by First point of impact, for that was necessary to have extra data, on this case was necessary to have a dataset relative to the vehicles and Casualties.
+Finally, we found necessary to explore the Casualty Severity by First point of impact, for this it was necessary to have extra data, on this case was necessary to have a dataset relative to the vehicles and Casualties.
 In this case, we expected to find some relation between the fatal accidents and a specific impact, so we created the _fig.6_.
 ```{r presuure3, echo=FALSE}
 
