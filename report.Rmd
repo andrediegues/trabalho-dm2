@@ -75,8 +75,18 @@ ggplot(data_graph3, aes(y=fr, x=Accident_Severity)) +
 Observing our _fig.3_ we can perceive that is indeed when it's verified bad wheather conditions like rain, fog and high winds there's higher frequency on Fatal accidents.
 We can assume that when Snowing drivers have limitions on their driving conditions and because of that the frequency of Fatal accidents is almost null when compared to other conditions.
 
-We also found interesting knowing the distribution of casualties per accident, this data could provide some perspective 
+We also found interesting knowing the distribution of casualties per accident dispite their severity, this data could provide some perspective on the "normal" number of injures per accident. So we generated the graph as you can see on _fig.4_.
 
+```{r presuure, echo=FALSE}
+# number of casualties by accident
+
+ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
+  geom_boxplot() +
+  ggtitle('Number of casualties') +
+  coord_flip()
+```
+
+As it's show it _fig.4_ its fair to say that the most common number of injureds it's one despite the severity of the accident. Looking closely we can see also that in some cases there is a large number of casulties that could have been from accidents with Buses or Chain shocks.
 
 
 You can also embed plots, for example:
