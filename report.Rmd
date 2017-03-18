@@ -27,8 +27,21 @@ In a first analysis of the dataset we realized that for a better perception of t
 
 
 ## Exploratory Analysis
+For this part, we started by matching some of the code guides with our actual data for better interpretation.
+After that we start by generating some graphs with a certain interest to visualize some correlation.
+For that porpuse our first plot as we can see in _fig.1_ tries to find association between accident locations and the severity of the accident.
 
+``` associar aquele fig 1 ao plot```
+```{r pressure, echo=FALSE}
+library(ggplot2)
 
+# scatterplot of accident locations, color coded by level of severity
+ggplot(data, aes(x=Longitude, y=Latitude, colour=Accident_Severity)) + 
+  geom_point() + 
+  ggtitle('Accident locations and level of severity')
+```
+
+As we can see we have scatter the accident locations per level of severity , and found that the geografical dispersion is similir to the UK geographical terrain, and the most frequent cases of Fatal accident (code = 1) are in the north side of the country, looking over this points it is quite reasonable to assume that fatal accidents are directly related to the worst atmospheric conditions that are felt normaly with more intensity in the north of the country.
 
 You can also embed plots, for example:
 
