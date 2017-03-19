@@ -312,23 +312,51 @@ After exploring the data, we decided to select the attributes that we thought wo
 In a way, we wanted to create groups of attributes to execute the Apriori algorithm, so we decided to use DBSCAN clustering algorithm in order to create these groups. Before we executed the DBSCAN algorithm we decide to remove the duplicated values of the data set since it wouldn't affect the result.
 
 ```{r data_apriori_unique}
+data_apriori = data
 data_apriori<-unique(data_apriori)
+```
+
+```{r clean_ap, echo=FALSE, message=FALSE}
+cols <- c("X2nd_Road_Class", "Junction_Detail", "Junction_Control", 
+          "Pedestrian_Crossing.Human_Control", "Pedestrian_Crossing.Physical_Facilities", 
+          "Light_Conditions", "Road_Surface_Conditions", "Special_Conditions_at_Site", 
+          "Carriageway_Hazards", "Urban_or_Rural_Area", "Period", "Number_of_Vehicles",
+          "Number_of_Casualties", "Day_of_Week", "X1st_Road_Class",
+          "X1st_Road_Number", "Road_Type", "Speed_limit", "PoliceForce", "Number_Vehicles",
+          "Number_Casualties")
+#data_apriori[cols] <- lapply(data_apriori[cols], as.factor)
+data_apriori$Longitude = NULL
+data_apriori$Latitude = NULL
+data_apriori$Date = NULL
+data_apriori$Time = NULL
+data_apriori$X1st_Road_Number = NULL
+data_apriori$X2nd_Road_Number = NULL
+data_apriori$Day = NULL
+data_apriori$Year = NULL
+data_apriori$Accident_Index = NULL
+data_apriori$Police_Force = NULL
+data_apriori$LSOA_of_Accident_Location = NULL
+data_apriori$Number_of_Casualties = NULL
+data_apriori$Number_of_Vehicles = NULL
+data_apriori$Day_of_Week = NULL
+data_apriori$PoliceForce=NULL
+
+data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
+data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
 ```
 
 Recurring to a clustering algorithm would automate the selection of attributes to form groups and to discover and exclude the outlier points of the dataset. Since we decided to use DBSCAN algorithm, we needed to choose the minimal points (minPts) in the k-neighbourhood and the k-distance (eps). After some tries, we achieved a set of clusters that was reasonable with minPts=10 and eps=2:
 
 ```{r clusters}
-
-  clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
-  table(clusters$cluster)
-  plot(data_apriori,col=clusters$cluster)
-  
+library(dbscan)
+clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
+table(clusters$cluster)
 ```
 
 
 With the clusters generated, we only needed to calculate the Apriori algorithm for each cluster. At the beginning, we didn't want to generate all the possible rules since many of those rules wouldn't be interesting so we created a Top 20 rules with highest lift value for each cluster with support=0.6, confidence=0.8 and lift>1.2.
 
-```{r apriori_cluster_function, echo=FALSE}
+```{r apriori_cluster_function, eval=FALSE,echo=FALSE, message=FALSE}
 
 apply_apriori_clusters <- function(data_set, cluster_set){
   n_clusters <- c(1:max(unique(cluster_set$cluster)))
@@ -338,13 +366,16 @@ apply_apriori_clusters <- function(data_set, cluster_set){
     tt[] <- lapply(tt, factor)
     ap_ <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
     ap_ <- ap_[!is.redundant(ap_, measure="confidence"),]
-    ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift", arem="aimp"), 20)
+    ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift"), 20)
     ss <- subset(ss,lift>1.2)
     subsets[[i]] <- ss
   }
   subsets
 }
-
 subsets <- apply_apriori_clusters(data_apriori, clusters)
 
+```
+
+```{r test}
+subsets
 ```
