@@ -137,3 +137,47 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+##Clustering 
+
+After exploring the data, we decided to select the attributes that we thought would give us the best association rules but that task turned out to be impossible since the dataset is so big that we found out that some attributes were good to find patterns in the conditions of the road but not relevant to accidents where people are involved even eliminating some of columns that were not relevant to the pattern mining like the Longitude, Latitude, Police_Force, etc. 
+
+In a way, we wanted to create groups of attributes to execute the Apriori algorithm, so we decided to use DBSCAN clustering algorithm in order to create these groups. Before we executed the DBSCAN algorithm we decide to remove the duplicated values of the data set since it wouldn't affect the result.
+
+```{r data_apriori_unique}
+data_apriori<-unique(data_apriori)
+```
+
+Recurring to a clustering algorithm would automize the selection of attributes to form groups and to discover and exclude the outlier points of the dataset. Since we decided to use DBSCAN algorithm, we needed to choose the minimal points (minPts) in the k-neighbourhood and the k-distance (eps). After some tries we achieved a set of clusters that was reasonable with minPts=10 and eps=2:
+
+```{r clusters}
+
+  clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
+  table(clusters$cluster)
+  plot(data_apriori,col=clusters$cluster)
+  
+```
+
+
+With the clusters generated, we only needed to calculate the Apriori algorithm for each cluster. At the beginning, we didn't want to generate all the possible rules since many of those rules wouldn't be interesting so we created a Top 20 rules with highest lift value for each cluster with support=0.6, confidence=0.8 and lift>1.2.
+
+```{r apriori_cluster_function, echo=FALSE}
+
+apply_apriori_clusters <- function(data_set, cluster_set){
+  n_clusters <- c(1:max(unique(cluster_set$cluster)))
+  subsets <- list()
+  for(i in n_clusters){
+    tt <- data_set[cluster_set$cluster==i,]
+    tt[] <- lapply(tt, factor)
+    ap_ <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
+    ap_ <- ap_[!is.redundant(ap_, measure="confidence"),]
+    ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift", arem="aimp"), 20)
+    ss <- subset(ss,lift>1.2)
+    subsets[[i]] <- ss
+  }
+  subsets
+}
+
+subsets <- apply_apriori_clusters(data_apriori, clusters)
+
+```
