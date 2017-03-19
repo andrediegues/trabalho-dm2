@@ -169,7 +169,6 @@ data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { a
 # sim, aplica duas vezes
 data_apriori<-unique(data_apriori)
 clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
-
 #brincar com o apriori aqui:
 apply_apriori_clusters <- function(data_set, cluster_set){
   n_clusters <- c(1:max(unique(cluster_set$cluster)))
@@ -177,10 +176,10 @@ apply_apriori_clusters <- function(data_set, cluster_set){
   for(i in n_clusters){
     tt <- data_set[cluster_set$cluster==i,]
     tt[] <- lapply(tt, factor)
-    ap_ <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
+    ap_ <- apriori(tt, parameter=list(supp=0.5, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
     ap_ <- ap_[!is.redundant(ap_, measure="confidence"),]
     ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift", arem="aimp"), 20)
-    ss <- subset(ss,lift>1.2)
+    ss <- subset(ss,lift>1)
     subsets[[i]] <- ss
   }
   subsets
@@ -283,3 +282,5 @@ accid$Number_of_Casualties <- vehicle_And_Casualty_Interval(accid$Number_of_Casu
 summary(accid$Number_of_Vehicles)
 summary(accid$Number_of_Casualties)
 
+## plot for rules 
+plot(subsets[[53]], method = "graph", control=list(cex=.8))
