@@ -354,7 +354,7 @@ table(clusters$cluster)
 ```
 
 
-With the clusters generated, we only needed to calculate the Apriori algorithm for each cluster. At the beginning, we didn't want to generate all the possible rules since many of those rules wouldn't be interesting so we created a Top 20 rules with highest lift value for each cluster with support=0.6, confidence=0.8 and lift>1.2.
+With the clusters generated, we only needed to calculate the Apriori algorithm for each cluster. At the beginning, we didn't want to generate all the possible rules since many of those rules wouldn't be interesting, so we created a Top 20 rules with highest lift value for each cluster with support=0.6, confidence=0.8 and lift>1.2. This idea is based on the work done by Sachin Kumar and Durga Toshinwal in "A data mining framework to analyze road accident data": https://journalofbigdata.springeropen.com/articles/10.1186/s40537-015-0035-y
 
 ```{r apriori_cluster_function, eval=FALSE}
 
@@ -388,4 +388,21 @@ for (i in 1:length(subsets)) {
   if (length(subsets[[i]]) != 0)
     plot(subsets[[i]], method = "graph", control=list(cex=.8))
 }
+```
+
+These are the 10 rules with highest lift value.
+
+```{r top10_lift, echo=FALSE}
+get_unique_ass_rules <- function(data_set){
+  ar <- array(dim = length(data_set))
+  ar <- append(data_set[[1]],data_set[[2]])
+  for(i in (3:length(data_set)-1)){
+    ar <- append(ar,data_set[[i]])
+    
+  }
+  unique(ar)
+}
+as <- get_unique_ass_rules(subsets)
+as <- head(sort(as, decreasing = TRUE, na.last=NA, by="lift"), 10)
+inspect(as)
 ```

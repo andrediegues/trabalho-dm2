@@ -187,6 +187,3 @@ apply_apriori_clusters <- function(data_set, cluster_set){
 }
 subsets <- apply_apriori_clusters(data_apriori, clusters)
 save(subsets, file="report.RData")
-
-## plot for rules 
-plot(subsets[[53]], method = "graph", control=list(cex=.8))
