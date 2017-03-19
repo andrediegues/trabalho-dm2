@@ -179,8 +179,8 @@ apply_apriori_clusters <- function(data_set, cluster_set){
     tt[] <- lapply(tt, factor)
     ap_ <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
     ap_ <- ap_[!is.redundant(ap_, measure="confidence"),]
-    ss <- subset(ap_,lift>1.4)
     ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift", arem="aimp"), 20)
+    ss <- subset(ss,lift>1.4)
     subsets[[i]] <- ss
   }
   subsets
