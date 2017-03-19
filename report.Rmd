@@ -376,7 +376,16 @@ subsets <- apply_apriori_clusters(data_apriori, clusters)
 
 ```
 
-```{r import_subsets, echo=FALSE}
+```{r import_subsets, echo=FALSE, message=FALSE}
 load(file="report.RData")
 subsets
+```
+
+We produced some plots with the rules obtained for each cluster, under the conditions that we mentioned previously.
+
+```{r plots_rules, message=FALSE}
+for (i in 1:length(subsets)) {
+  if (length(subsets[[i]]) != 0)
+    plot(subsets[[i]], method = "graph", control=list(cex=.8))
+}
 ```
