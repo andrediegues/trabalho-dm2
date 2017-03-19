@@ -5,11 +5,11 @@ date: "17 de Março de 2017"
 output: html_document
 ---
 
-```{r setup, message=FALSE}
+```{r setup, echo=FALSE, message=FALSE,  warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r prepare_data, echo=FALSE, message=FALSE}
+```{r prepare_data, echo=FALSE, message=FALSE, warning=FALSE}
 library(arules)
 library(arulesViz)
 library(gdata)
@@ -134,13 +134,13 @@ data$Time <- as.numeric(sub(":", "", data$Time))
 data <- data[complete.cases(data),]
 # Organizar horas por periodo
 data <- mutate(data, Period = get_period(Time))
-data$Time <- as.factor(data$Period)
+data$Period <- as.factor(data$Period)
 # Discretizar numero de policias
 data <- mutate(data, PoliceForce = police_forceInterval(Police_Force))
 data$PoliceForce <- as.factor(data$PoliceForce)
 # Discretizar numero de veiculos 
 data <- mutate(data, Number_Vehicles = vehicle_And_Casualty_Interval(Number_of_Vehicles))
-data$Period <- as.factor(data$Number_Vehicles)
+data$Number_Vehicles <- as.factor(data$Number_Vehicles)
 # Discretizar numero de casualidades
 data <- mutate(data, Number_Casualties = vehicle_And_Casualty_Interval(Number_of_Casualties))
 data$Number_Casualties <- as.factor(data$Number_Casualties)
@@ -154,8 +154,8 @@ Association rule mining is a concept that fits under descriptive tasks in the ar
 
 In this report, we study a dataset that contains several details on car accidents in the United Kingdom. This dataset was made available by the Government of the United Kingdom and dates back to 2015. Examples of information contained in it include: GPS location of the occurence, severity of accident, number of vehicles and casualties involved, time and date, type of road, speed limit, natural conditions (weather or light), road conditions and infrastructure available in the road (how are junctions handled, are there crossings available or not...). The goal of this work is to find frequent itemsets relating to the details of accidents, or in other words, what do accidents typically have related to one another, as well as finding association rules on cause and effect of traffic accidents.
 
-```{r cars}
-summary(cars)
+```{r dataset,  warning=FALSE}
+summary(data)
 ```
 
 ## Preprocessing
@@ -165,7 +165,7 @@ We also verified that the dataset had missing values in some observations and th
 In a first analysis of the dataset, we realized that for a better perception of the data, we should discretize some numeric variables, only to improve our goal to find association rules on the cause and effect of traffic accidents. After this, we decided to do some exploratory analysis on the data, in order to check for potential correlations or for variables that are not necessary.
 
 
-```{r prepare_graphs,  echo=FALSE, message=FALSE}
+```{r prepare_graphs,  echo=FALSE, message=FALSE,  warning=FALSE}
 
 # Fazer corresponder ints a strings
 data$Accident_Severity = Casualty_Severity[data$Accident_Severity,]$label
@@ -206,7 +206,7 @@ In this part, we started by matching some of the code guides with our actual dat
 After that, we generated some graphs with a certain interest to visualize some correlation.
 For that purpose, our first plot, as we can see in _fig.1_, tries to find an association between accident locations and the severity of the accident.
 
-```{r pressure, echo=FALSE, message=FALSE}
+```{r pressure, echo=FALSE, message=FALSE,  warning=FALSE}
 library(ggplot2)
 
 # scatterplot of accident locations, color coded by level of severity
@@ -219,7 +219,7 @@ As we can see, we have scattered the accident locations per level of severity an
 
 Now, our goal was to relate to each type of accident severity by month, and know, in this way, the distribution of accidents per month as we can see in _fig.2_.
 
-```{r pressure2, echo=FALSE}
+```{r pressure2, echo=FALSE,  warning=FALSE}
 # severity of accidents by month
 data_graph2 <- dplyr::select(data, c(Month, Accident_Severity))
 data_graph2 <- dplyr::group_by(data_graph2, Accident_Severity)
@@ -235,7 +235,7 @@ Observing the data in a more detailed way, we observe that the month of December
 Now, our goal was to find out how the Accident Severity would behave when compared to the atmospheric conditions.
 From this data, we expect to see a higher frequency of Fatal accidents when put against bad weather conditions, as we can see on _fig.3_.
 
-```{r pressure3, echo=FALSE}
+```{r pressure3, echo=FALSE,  warning=FALSE}
 # severity of accidents by weather conditions
 data_graph3 <- dplyr::select(data, c(Weather_Conditions, Accident_Severity))
 data_graph3 <- dplyr::group_by(data_graph3, Weather_Conditions, Accident_Severity)
@@ -251,7 +251,7 @@ We can also assume that when snowing, drivers have limitations on their driving 
 
 We also found interesting knowing the distribution of casualties. This graph could provide some perspective on the normal number of casualties per accident. So we generated the graph as you can see on _fig.4_.
 
-```{r presuure, echo=FALSE}
+```{r presuure, echo=FALSE,  warning=FALSE}
 # number of casualties by accident
 
 ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
@@ -262,7 +262,7 @@ ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
 
 We also considered important to analyze the severity of accidents in comparison to the type of road, as you can observe on _fig.5_.
  
-```{r presuure2, echo=FALSE}
+```{r presuure2, echo=FALSE,  warning=FALSE}
 
 # x1st_class_road por accident_severity
 accid <- read.csv("Accidents_2015.csv")
@@ -311,12 +311,12 @@ After exploring the data, we decided to select the attributes that we thought wo
 
 In a way, we wanted to create groups of attributes to execute the Apriori algorithm, so we decided to use DBSCAN clustering algorithm in order to create these groups. Before we executed the DBSCAN algorithm we decide to remove the duplicated values of the data set since it wouldn't affect the result.
 
-```{r data_apriori_unique}
+```{r data_apriori_unique,  warning=FALSE}
 data_apriori = data
 data_apriori<-unique(data_apriori)
 ```
 
-```{r clean_ap, echo=FALSE, message=FALSE}
+```{r clean_ap, echo=FALSE, message=FALSE,  warning=FALSE}
 cols <- c("X2nd_Road_Class", "Junction_Detail", "Junction_Control", 
           "Pedestrian_Crossing.Human_Control", "Pedestrian_Crossing.Physical_Facilities", 
           "Light_Conditions", "Road_Surface_Conditions", "Special_Conditions_at_Site", 
@@ -347,7 +347,7 @@ data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { a
 
 Recurring to a clustering algorithm would automate the selection of attributes to form groups and to discover and exclude the outlier points of the dataset. Since we decided to use DBSCAN algorithm, we needed to choose the minimal points (minPts) in the k-neighbourhood and the k-distance (eps). After some tries, we achieved a set of clusters that was reasonable with minPts=10 and eps=2:
 
-```{r clusters}
+```{r clusters,  warning=FALSE}
 library(dbscan)
 clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
 table(clusters$cluster)
@@ -376,14 +376,13 @@ subsets <- apply_apriori_clusters(data_apriori, clusters)
 
 ```
 
-```{r import_subsets, echo=FALSE, message=FALSE}
+```{r import_subsets, echo=FALSE, message=FALSE,  warning=FALSE}
 load(file="report.RData")
-subsets
 ```
 
 We produced some plots with the rules obtained for each cluster, under the conditions that we mentioned previously.
 
-```{r plots_rules, message=FALSE}
+```{r plots_rules, message=FALSE,  warning=FALSE}
 for (i in 1:length(subsets)) {
   if (length(subsets[[i]]) != 0)
     plot(subsets[[i]], method = "graph", control=list(cex=.8))
@@ -392,7 +391,7 @@ for (i in 1:length(subsets)) {
 
 These are the 10 rules with highest lift value.
 
-```{r top10_lift, echo=FALSE}
+```{r top10_lift, echo=FALSE,  warning=FALSE}
 get_unique_ass_rules <- function(data_set){
   ar <- array(dim = length(data_set))
   ar <- append(data_set[[1]],data_set[[2]])
@@ -407,6 +406,6 @@ as <- head(sort(as, decreasing = TRUE, na.last=NA, by="lift"), 10)
 inspect(as)
 ```
 
-After this procedure, we can conclude, from rules 1 and 2, that when the Number_Casualties=1 and either the Period=2 or the Number_Vehicles=2 the Accident Severity is Slight. Although this seems "normal", we were surprised to know that if specific conditions are available then it implies that the accident occurs at a specific week day or month as it shows the rules 3, 7 and 8. 
+After this procedure, we can conclude, from rules 1 and 2, that when the Number_Casualties is 1 (Individual) and either the Period is 2 (Morning) or the Number_Vehicles is 2 (Multiple), the Accident Severity is Slight. Although this seems normal, we were surprised to know that, if specific conditions occur, then it implies that the accident occurs at a specific week day or month as it shows in rules 3, 7 and 8. 
 
-What wasn't a surprise was the fact that not many rules had pedestrians involved since in many of the roads present in the dataset pedestrians are not allowed to walk. Also, since the UK is a very rainy country, the fact that the speed limit, road, weather and light conditions have correlations was not a surprise either. 
+What was not a surprise was the fact that not many rules had pedestrians involved, since in many of the roads present in the dataset, pedestrians are not allowed to walk. Also, since the UK is a very rainy country, the fact that the speed limit, road, weather and light conditions have correlations was not a surprise either. 

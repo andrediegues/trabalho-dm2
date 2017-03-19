@@ -163,13 +163,13 @@ data_apriori$Number_of_Vehicles = NULL
 data_apriori$Day_of_Week = NULL
 data_apriori$PoliceForce=NULL
 
-# sim, aplica duas vezes
+
 data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
 data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { as.numeric(x) } else { x }))
-# sim, aplica duas vezes
+
 data_apriori<-unique(data_apriori)
 clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
-#brincar com o apriori aqui:
+
 
 apply_apriori_clusters <- function(data_set, cluster_set){
   n_clusters <- c(1:max(unique(cluster_set$cluster)))
@@ -187,3 +187,15 @@ apply_apriori_clusters <- function(data_set, cluster_set){
 }
 subsets <- apply_apriori_clusters(data_apriori, clusters)
 save(subsets, file="report.RData")
+
+get_unique_ass_rules <- function(data_set){
+  ar <- array(dim = length(data_set))
+  ar <- append(data_set[[1]],data_set[[2]])
+  for(i in (3:length(data_set)-1)){
+    ar <- append(ar,data_set[[i]])
+    
+  }
+  unique(ar)
+}
+as <- get_unique_ass_rules(subsets)
+as <- sort(as, decreasing = TRUE, na.last=NA, by="lift")
