@@ -5,7 +5,7 @@ date: "17 de Março de 2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -356,7 +356,7 @@ table(clusters$cluster)
 
 With the clusters generated, we only needed to calculate the Apriori algorithm for each cluster. At the beginning, we didn't want to generate all the possible rules since many of those rules wouldn't be interesting so we created a Top 20 rules with highest lift value for each cluster with support=0.6, confidence=0.8 and lift>1.2.
 
-```{r apriori_cluster_function, eval=FALSE,echo=FALSE, message=FALSE}
+```{r apriori_cluster_function, eval=FALSE}
 
 apply_apriori_clusters <- function(data_set, cluster_set){
   n_clusters <- c(1:max(unique(cluster_set$cluster)))
@@ -376,6 +376,7 @@ subsets <- apply_apriori_clusters(data_apriori, clusters)
 
 ```
 
-```{r test}
+```{r import_subsets, echo=FALSE}
+load(file="report.RData")
 subsets
 ```

@@ -170,117 +170,23 @@ data_apriori <- data.frame(sapply(data_apriori, function(x) if(is.factor(x)) { a
 data_apriori<-unique(data_apriori)
 clusters <- dbscan(data_apriori, eps = 2, minPts = 10)
 #brincar com o apriori aqui:
+
 apply_apriori_clusters <- function(data_set, cluster_set){
   n_clusters <- c(1:max(unique(cluster_set$cluster)))
   subsets <- list()
   for(i in n_clusters){
     tt <- data_set[cluster_set$cluster==i,]
     tt[] <- lapply(tt, factor)
-    ap_ <- apriori(tt, parameter=list(supp=0.5, conf=0.8, target="rules", minlen=2, maxlen=1000), control=list(verbose=FALSE))
+    ap_ <- apriori(tt, parameter=list(supp=0.6, conf=0.8, target="rules", minlen=2, maxlen=1000000), control=list(verbose=FALSE))
     ap_ <- ap_[!is.redundant(ap_, measure="confidence"),]
-    ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift", arem="aimp"), 20)
-    ss <- subset(ss,lift>1)
+    ss <- head(sort(ap_, decreasing=TRUE, na.last=NA, by="lift"), 20)
+    ss <- subset(ss,lift>1.2)
     subsets[[i]] <- ss
   }
   subsets
 }
 subsets <- apply_apriori_clusters(data_apriori, clusters)
-
-######################## EXPLORATORY ANALYSIS #######################
-
-# Fazer corresponder ints a strings
-data$Accident_Severity = Casualty_Severity[data$Accident_Severity,]$label
-
-Weather_Conditions <- c()
-Weather_Conditions[1] = "Fine, no high winds"
-Weather_Conditions[2] = "Raining, no high winds"
-Weather_Conditions[3] = "Snowing, no high winds"
-Weather_Conditions[4] = "Fine + high winds"
-Weather_Conditions[5] = "Raining + high winds"
-Weather_Conditions[6] = "Snowing + high winds"
-Weather_Conditions[7] = "Fog or mist"
-Weather_Conditions[8] = "Other"
-Weather_Conditions[9] = "Unknown"
-data$Weather_Conditions = Weather_Conditions[data$Weather_Conditions]
-data$Weather_Conditions = as.factor(data$Weather_Conditions)
-
-FirstRdClass <- c()
-FirstRdClass[1] = "Motorway"
-FirstRdClass[2] = "A(M)"
-FirstRdClass[3] = "A"
-FirstRdClass[4] = "B"
-FirstRdClass[5] = "C"
-FirstRdClass[6] = "Unclassified"
-data$X1st_Road_Class = FirstRdClass[data$X1st_Road_Class]
-data$X1st_Road_Class = as.factor(data$X1st_Road_Class)
-
-
-library(ggplot2)
-
-# scatterplot of accident locations, color coded by level of severity
-ggplot(data, aes(x=Longitude, y=Latitude, colour=Accident_Severity)) + 
-  geom_point() + 
-  ggtitle('Accident locations and level of severity')
-
-# severity of accidents by month
-data_graph2 <- dplyr::select(data, c(Month, Accident_Severity))
-data_graph2 <- dplyr::group_by(data_graph2, Accident_Severity)
-data_graph2 <- dplyr::count(data_graph2, Month, Accident_Severity)
-ggplot(data_graph2, aes(y=n, x=Accident_Severity)) + 
-  geom_bar(stat="identity") + 
-  ggtitle('Severity of accidents by month') + facet_wrap(~ Month)
-
-# severity of accidents by weather conditions
-
-data_graph3 <- dplyr::select(data, c(Weather_Conditions, Accident_Severity))
-data_graph3 <- dplyr::group_by(data_graph3, Weather_Conditions, Accident_Severity)
-data_graph3 <- dplyr::count(data_graph3, Weather_Conditions, Accident_Severity)
-data_graph3 <- dplyr::mutate(data_graph3, fr=n/sum(n))
-ggplot(data_graph3, aes(y=fr, x=Accident_Severity)) + 
-  geom_bar(stat="identity") + 
-  ggtitle('Severity of accidents by weather conditions') + facet_wrap(~ Weather_Conditions)
-
-# number of casualties by accident
-
-ggplot(data, aes(x=factor(0), y=Number_of_Casualties)) +
-  geom_boxplot() +
-  ggtitle('Number of casualties') +
-  coord_flip()
-
-# x1st_class_road por accident_severity
-
-accid <- read.csv("Accidents_2015.csv")
-accid$Accident_Severity = Casualty_Severity[accid$Accident_Severity,]$label
-accid$X1st_Road_Class = FirstRdClass[accid$X1st_Road_Class]
-X1stClassRoadperTypeAccident <- select(accid, X1st_Road_Class, Accident_Severity)
-X1stClassRoadperTypeAccident <- group_by(X1stClassRoadperTypeAccident, X1st_Road_Class, Accident_Severity)
-X1stClassRoadperTypeAccident <- dplyr::count(X1stClassRoadperTypeAccident, X1st_Road_Class, Accident_Severity)
-X1stClassRoadperTypeAccident <- mutate(X1stClassRoadperTypeAccident, fr=n/sum(n))
-ggplot(X1stClassRoadperTypeAccident, aes(x = Accident_Severity, y = fr)) + geom_bar(stat="identity") + facet_wrap(~ X1st_Road_Class) + ggtitle("Accident Severity by each 1st Road Class")
-
-#table with 1st point of impact and casualty severity for each accident
-
-vehicles <- read.csv("Vehicles_2015.csv")
-casualties <- read.csv("Casualties_2015.csv")
-require(sqldf)
-matchIndex <- sqldf("SELECT v.Accident_Index, c.Casualty_Severity, v.X1st_Point_of_Impact
-                    FROM casualties as c, vehicles as v WHERE v.Accident_Index = c.Accident_Index")
-matchIndex <- dplyr::count(matchIndex, X1st_Point_of_Impact, Casualty_Severity)
-ggplot(matchIndex, aes(y=n, x=Casualty_Severity)) + 
-  geom_bar(stat="identity") +
-  ggtitle('Casualty_Severity by First point of impact') + facet_wrap(~ X1st_Point_of_Impact)
-
-# summaries 
-accid$Accident_Index = NULL
-accid$Police_Force <- police_forceInterval(accid$Police_Force)
-
-summary(accid$Police_Force)
-
-accid$Number_of_Vehicles <- vehicle_And_Casualty_Interval(accid$Number_of_Vehicles)
-accid$Number_of_Casualties <- vehicle_And_Casualty_Interval(accid$Number_of_Casualties)
-
-summary(accid$Number_of_Vehicles)
-summary(accid$Number_of_Casualties)
+save(subsets, file="report.RData")
 
 ## plot for rules 
 plot(subsets[[53]], method = "graph", control=list(cex=.8))
