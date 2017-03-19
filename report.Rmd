@@ -406,3 +406,7 @@ as <- get_unique_ass_rules(subsets)
 as <- head(sort(as, decreasing = TRUE, na.last=NA, by="lift"), 10)
 inspect(as)
 ```
+
+After this procedure, we can conclude, from rules 1 and 2, that when the Number_Casualties=1 and either the Period=2 or the Number_Vehicles=2 the Accident Severity is Slight. Although this seems "normal", we were surprised to know that if specific conditions are available then it implies that the accident occurs at a specific week day or month as it shows the rules 3, 7 and 8. 
+
+What wasn't a surprise was the fact that not many rules had pedestrians involved since in many of the roads present in the dataset pedestrians are not allowed to walk. Also, since the UK is a very rainy country, the fact that the speed limit, road, weather and light conditions have correlations was not a surprise either. 
